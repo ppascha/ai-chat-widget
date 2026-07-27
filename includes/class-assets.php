@@ -29,5 +29,14 @@ class Assets
             '1.0.0',
             true
         );
+
+        wp_localize_script(
+            'aicw-chat',
+            'AICW_Config',
+            [
+                'restUrl' => rest_url('ai-chatbot/v1/message'),
+                'nonce' => wp_create_nonce('wp_rest'),
+            ]
+        );
     }
 }

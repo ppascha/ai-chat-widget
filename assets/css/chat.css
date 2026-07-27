@@ -160,3 +160,54 @@
     margin-bottom:10px;
 
 }
+
+.aicw-product-card {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.aicw-product-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: inline-block;
+    color: #1d2327;
+    text-decoration: none;
+}
+
+.aicw-product-title:hover,
+.aicw-product-title:focus-visible {
+    color: #2271b1;
+    text-decoration: underline;
+}
+
+.aicw-product-summary {
+    color: #646970;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.aicw-product-iframe {
+    display: block;
+    width: 100%;
+    min-height: 220px;
+    border: 0;
+    border-radius: 8px;
+    background: #f6f7f7;
+}
+
+.aicw-product-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.aicw-product-link:hover,
+.aicw-product-link:focus-visible {
+    text-decoration: underline;
+}
