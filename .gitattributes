@@ -1,0 +1,8 @@
+* text=auto
+
+# Keep shell scripts and compose files on LF so Docker containers can run them
+# consistently on Windows, macOS, and Linux.
+*.sh text eol=lf
+docker-compose.yml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
