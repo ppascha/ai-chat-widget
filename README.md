@@ -5,7 +5,7 @@ The **AI Chat Widjet** is a `Wordpress plguin` kind of project.
 ## Local development
 
 1. Copy `.env.example` to `.env`
-2. Run `docker-compose --enf-file .env up -d`
+2. Run `docker-compose --env-file .env up -d`
 
 The plugin source is mounted live from this repo into `wp-content/plugins/ai-chat-widget`.
 

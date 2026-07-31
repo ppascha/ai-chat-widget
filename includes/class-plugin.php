@@ -36,7 +36,10 @@ require_once AICW_PATH . 'includes/Services/class-wordpress-message-store.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-product-catalog.php';
 require_once AICW_PATH . 'includes/Services/class-chat-loop.php';
 require_once AICW_PATH . 'includes/Services/class-llm-service.php';
-
+require_once AICW_PATH . 'includes/Admin/class-admin.php';
+require_once AICW_PATH . 'includes/Admin/class-admin-assets.php';
+require_once AICW_PATH . 'includes/Admin/class-admin-settings.php';
+require_once AICW_PATH . 'includes/Admin/class-admin-config.php';
 
 use AICW\API\Rest_API;
 use AICW\Controllers\Chat_Controller;
@@ -52,6 +55,9 @@ use AICW\Services\Chat_Loop;
 use AICW\Services\WordPress_Mcp_App;
 use AICW\Services\WordPress_Message_Store;
 use AICW\Services\WordPress_Product_Catalog;
+use AICW\Admin\Admin;
+use AICW\Admin\Admin_Assets;
+use AICW\Admin\Admin_Config;
 
 
 class Plugin
@@ -101,6 +107,9 @@ class Plugin
         Assets::init();
 
         Widget::init();
+
+        Admin::init();
+        Admin_Assets::init();
 
         // Frontend iframe rendering stays in WordPress so product cards resolve via same-origin routes.
         Product_Iframe_Controller::init(self::$catalog);
