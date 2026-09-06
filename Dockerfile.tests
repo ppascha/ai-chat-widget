@@ -1,0 +1,16 @@
+FROM php:8.2-cli-bookworm
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN apt-get update     && apt-get install -y --no-install-recommends git unzip libzip-dev libxml2-dev libonig-dev     && docker-php-ext-install zip xml mbstring mysqli     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY composer.json phpunit.xml.dist /app/
+RUN mkdir -p /app/build/coverage     && composer install --no-interaction --prefer-dist --no-progress
+
+COPY . /app
+
+CMD ["phpdbg", "-qrr", "vendor/bin/phpunit", "--coverage-text", "--coverage-clover", "build/coverage/clover.xml", "--coverage-filter", "includes"]
