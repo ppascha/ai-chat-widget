@@ -19,10 +19,16 @@ require_once AICW_PATH . 'includes/class-widget.php';
 
 require_once AICW_PATH . 'includes/Content/class-product-post-type.php';
 
+require_once AICW_PATH . 'includes/Contracts/ValueObjects/class-mcp-tool-definition.php';
+require_once AICW_PATH . 'includes/Contracts/ValueObjects/class-mcp-resource-definition.php';
+require_once AICW_PATH . 'includes/Contracts/ValueObjects/class-mcp-provisioning-result.php';
+
 require_once AICW_PATH . 'includes/Contracts/interface-chat-loop.php';
 require_once AICW_PATH . 'includes/Contracts/interface-openai-client.php';
 require_once AICW_PATH . 'includes/Contracts/interface-message-store.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-app.php';
+require_once AICW_PATH . 'includes/Contracts/interface-mcp-app-factory.php';
+require_once AICW_PATH . 'includes/Contracts/interface-mcp-capability-provider.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-provisioner.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-tool-executor.php';
 require_once AICW_PATH . 'includes/Contracts/interface-product-catalog.php';
