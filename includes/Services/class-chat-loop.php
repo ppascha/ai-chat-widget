@@ -56,8 +56,10 @@ class Chat_Loop implements Chat_Loop_Interface
 
         // Hard-stop loop guard protects against malformed endless tool-call cycles.
         for ($iteration = 0; $iteration < 8; $iteration++) {
-            // For product-intent turns, force at least one tool call so frontend receives product payloads.
-            $toolChoice = ($preferProductTools && empty($products)) ? 'required' : 'auto';
+            // Force only the first turn's tool call for product-intent messages; forcing on every
+            // turn while $products stays empty could loop forever if a later tool call (e.g. an
+            // unmatched iframe lookup) legitimately returns no products.
+            $toolChoice = ($preferProductTools && 0 === $iteration) ? 'required' : 'auto';
 
             $response = $this->openAI->chat($messages, $this->cachedTools, [
                 'tool_choice' => $toolChoice,

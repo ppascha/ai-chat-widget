@@ -148,7 +148,9 @@ class Plugin
 
     private static function resolveStorefrontIntegrationKey(?string $storefrontIntegrationKey): string
     {
-        $configuredKey = $storefrontIntegrationKey;
+        // Treat a blank string the same as "not configured" so stray hook arguments (e.g. some
+        // callers forwarding plugins_loaded's arguments) cannot silently bypass env/constant/filter config.
+        $configuredKey = ('' !== trim((string) $storefrontIntegrationKey)) ? $storefrontIntegrationKey : null;
 
         if (null === $configuredKey && getenv('AICW_STOREFRONT_INTEGRATION')) {
             $configuredKey = (string) getenv('AICW_STOREFRONT_INTEGRATION');

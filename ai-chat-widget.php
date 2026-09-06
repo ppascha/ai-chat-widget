@@ -19,5 +19,6 @@ require_once AICW_PATH . 'includes/class-plugin.php';
 
 AICW\Plugin::register_activation_hooks();
 // Defer init until all plugins have loaded so integrations like WooCommerce are detectable
-// regardless of alphabetical plugin load order.
-add_action('plugins_loaded', ['AICW\\Plugin', 'init']);
+// regardless of alphabetical plugin load order. accepted_args=0 so hook arguments never leak
+// into init()'s $storefrontIntegrationKey parameter.
+add_action('plugins_loaded', ['AICW\\Plugin', 'init'], 10, 0);
