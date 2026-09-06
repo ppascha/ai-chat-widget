@@ -188,3 +188,36 @@ flowchart TB
     website .-> app
 
 ```
+
+## AI Loop Flowchart
+
+This section documents the request-time flow inside `Chat_Loop` (the "ai loop" / agentic loop
+referenced above). It must stay in sync with `includes/Services/class-chat-loop.php`: any change
+to tool-choice policy or response shaping here should be reflected in that file, and vice versa.
+
+```mermaid
+flowchart TD
+    A[User message] --> B[Load history + append turn]
+    B --> C["tool_choice = auto (always)"]
+    C --> D[Call model]
+    D --> E{tool_calls present?}
+    E -->|yes| F[Execute tools, collect $products]
+    F --> C
+    E -->|no| G["Return model's own text as-is.<br/>Cards render additively IF $products non-empty,<br/>alongside text, never replacing it"]
+```
+
+Design principles this flow enforces:
+
+- **No forced tool use.** `tool_choice` stays `auto` on every turn; the model decides whether a
+  tool call is needed, guided by tool descriptions and the system prompt rather than server-side
+  keyword heuristics.
+- **Text and cards are additive, not exclusive.** The assistant's own phrasing is always returned
+  as `message`; product cards render from `$products` independently and never replace or get
+  replaced by the model's text.
+- **The system prompt teaches the distinction**, not a regex: browse-style requests should trigger
+  `list_products`/`find_products` (rendered as cards), while aggregate/descriptive questions about
+  the catalog should be answered directly in natural language.
+
+See [docs/chat-loop-redesign.md](docs/chat-loop-redesign.md) for the prior (superseded) design and
+two alternative directions considered before adopting this flow.
+

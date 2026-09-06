@@ -52,17 +52,11 @@ class Chat_Loop implements Chat_Loop_Interface
         ];
 
         $products = [];
-        $preferProductTools = $this->looksLikeProductIntent($message);
 
         // Hard-stop loop guard protects against malformed endless tool-call cycles.
         for ($iteration = 0; $iteration < 8; $iteration++) {
-            // Force only the first turn's tool call for product-intent messages; forcing on every
-            // turn while $products stays empty could loop forever if a later tool call (e.g. an
-            // unmatched iframe lookup) legitimately returns no products.
-            $toolChoice = ($preferProductTools && 0 === $iteration) ? 'required' : 'auto';
-
             $response = $this->openAI->chat($messages, $this->cachedTools, [
-                'tool_choice' => $toolChoice,
+                'tool_choice' => 'auto',
                 'temperature' => 0.4,
             ]);
 
@@ -78,12 +72,9 @@ class Chat_Loop implements Chat_Loop_Interface
             // No tool calls means we reached a terminal assistant answer for this turn.
             if ([] === ($assistantMessage['tool_calls'] ?? [])) {
                 $kind = [] === $products ? 'text' : 'products';
+                // Trust the model's own phrasing always; cards render additively from $products
+                // without ever overriding the assistant's natural-language answer.
                 $messageText = (string) ($assistantMessage['content'] ?? '');
-
-                if ('products' === $kind) {
-                    // Product-mode copy is deterministic so UI text cannot drift into transport/iframe jargon.
-                    $messageText = $this->buildProductMessage($products);
-                }
 
                 // Persist full conversation after each successful turn so future turns can resume context.
                 $this->messageStore->save($conversationId, $messages);
@@ -162,27 +153,6 @@ class Chat_Loop implements Chat_Loop_Interface
 
     private function systemPrompt(): string
     {
-        return 'You are a WordPress storefront assistant. Always use product tools for product requests, including specific items like "omega pc". Do not output markdown links or raw URLs for products. Keep responses concise and let the UI render products from tool results.';
-    }
-
-    private function looksLikeProductIntent(string $message): bool
-    {
-        $normalized = strtolower($message);
-
-        return (bool) preg_match('/\b(product|products|catalog|pc|pcs|ps|pss|playstation|alpha|delta|omega)\b/i', $normalized);
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $products
-     */
-    private function buildProductMessage(array $products): string
-    {
-        if (1 === count($products)) {
-            $title = (string) ($products[0]['title'] ?? 'this product');
-
-            return sprintf('Here is %s.', $title);
-        }
-
-        return sprintf('Here are %d matching products.', count($products));
+        return 'You are a WordPress storefront assistant. Use product tools (list_products/find_products) whenever the user wants to browse or see specific items; the UI renders their results as cards automatically, so keep your own text brief in that case. For aggregate or descriptive questions about the catalog (e.g. counts, categories, general availability), answer directly and naturally in your own words instead of listing every item. Do not output markdown links or raw URLs for products.';
     }
 }

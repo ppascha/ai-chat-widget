@@ -3,8 +3,8 @@
 /**
  * Purpose: Unit coverage for the chat loop orchestration boundary.
  * Highlights:
- * - Verifies tool-choice behavior for product and non-product prompts.
- * - Verifies tool call fan-out and deterministic product copy.
+ * - Verifies tool_choice stays 'auto' so the model always drives tool selection.
+ * - Verifies tool call fan-out and that the model's own text is never overridden.
  * - Verifies conversation state is persisted through the message store contract.
  */
 
@@ -18,9 +18,9 @@ use PHPUnit\Framework\TestCase;
 
 final class ChatLoopTest extends TestCase
 {
-    public function testItForcesToolUseAndReturnsDeterministicProductCopy(): void
+    public function testItReturnsTheModelsOwnTextAlongsideProductCards(): void
     {
-        // Given: a product-intent prompt, one product result, and a model that first calls a tool.
+        // Given: a prompt, one product result, and a model that first calls a tool.
         $messageStore = new FakeMessageStore();
         $mcpApp = new FakeMcpApp(
             tools: [[
@@ -66,15 +66,15 @@ final class ChatLoopTest extends TestCase
         // When: the loop handles a product request with an explicit conversation ID.
         $result = $loop->handle('show me alpha pc', 'conversation-123');
 
-        // Then: the reply is product mode, the message is deterministic, and the transcript is persisted.
+        // Then: the reply is product mode, the model's own text is preserved, and the transcript is persisted.
         self::assertSame('products', $result['kind']);
-        self::assertSame('Here is Alpha PC.', $result['message']);
+        self::assertSame('assistant fallback text', $result['message']);
         self::assertCount(1, $result['products']);
         self::assertSame('conversation-123', $result['conversationId']);
         self::assertCount(1, $mcpApp->toolCalls);
         self::assertSame('search_products', $mcpApp->toolCalls[0]['name']);
         self::assertSame(['query' => 'alpha pc'], $mcpApp->toolCalls[0]['arguments']);
-        self::assertSame('required', $openAI->calls[0]['options']['tool_choice']);
+        self::assertSame('auto', $openAI->calls[0]['options']['tool_choice']);
         self::assertSame('auto', $openAI->calls[1]['options']['tool_choice']);
         self::assertCount(5, $messageStore->store['conversation-123']);
     }
