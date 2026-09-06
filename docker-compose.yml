@@ -73,7 +73,8 @@ services:
       # Mount live plugin source so bootstrap can activate the plugin and load fixture scripts.
       - ./:/var/www/html/wp-content/plugins/ai-chat-widget
       - ./scripts/bootstrap-site.sh:/bootstrap-site.sh:ro
-    entrypoint: ["/bin/sh", "/bootstrap-site.sh"]
+    # Normalize CRLF line endings at runtime so Windows checkouts still boot cleanly.
+    entrypoint: ["/bin/sh", "-c", "tr -d '\\r' < /bootstrap-site.sh | /bin/sh"]
     restart: "no"
 
 volumes:

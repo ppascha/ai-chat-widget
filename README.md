@@ -4,10 +4,16 @@ The **AI Chat Widjet** is a `Wordpress plguin` kind of project.
 
 ## Local development
 
-1. Copy `.env.example` to `.env`
-2. Run `docker-compose --enf-file .env up -d`
+1. Copy `.env.example` to `.env` 
+2. Run `docker-compose --env-file .env up -d`
+
+Visit [`http:localhost:8080`](`http://localhost:8080)
+
+---
 
 The plugin source is mounted live from this repo into `wp-content/plugins/ai-chat-widget`.
+
+If you are on Windows and the bootstrap script fails with `line 2: illegal option -`, check that Git did not convert `scripts/bootstrap-site.sh` to CRLF. This repo pins shell scripts to LF via `.gitattributes`, so a fresh clone with normal Git settings should avoid the issue.
 
 ## Testing direction
 
