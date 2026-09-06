@@ -9,14 +9,21 @@
 
 namespace AICW\Services;
 
-use AICW\Contracts\Mcp_App_Interface;
-use AICW\Contracts\Mcp_Provisioner_Interface;
 use AICW\Contracts\Product_Catalog_Interface;
+use AICW\Contracts\ValueObjects\Mcp_Provisioning_Result;
 
-class WordPress_Mcp_Provisioner implements Mcp_Provisioner_Interface
+class WordPress_Mcp_Provisioner extends Abstract_Mcp_Provisioner
 {
-    public function provision(Product_Catalog_Interface $catalog): Mcp_App_Interface
+    protected function provisionCapabilities(Product_Catalog_Interface $catalog): Mcp_Provisioning_Result
     {
+        // The demo app retains its existing inline tool/resource compatibility behavior during this migration.
+        return new Mcp_Provisioning_Result();
+    }
+
+    protected function buildMcpApp(
+        Product_Catalog_Interface $catalog,
+        Mcp_Provisioning_Result $provisioningResult
+    ): \AICW\Contracts\Mcp_App_Interface {
         return new WordPress_Mcp_App($catalog);
     }
 }

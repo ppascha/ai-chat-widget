@@ -35,6 +35,7 @@ require_once AICW_PATH . 'includes/Controllers/class-product-iframe-controller.p
 require_once AICW_PATH . 'includes/Controllers/class-chat-controller.php';
 
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app.php';
+require_once AICW_PATH . 'includes/Services/Abstract_Mcp_Provisioner.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-provisioner.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-message-store.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-product-catalog.php';

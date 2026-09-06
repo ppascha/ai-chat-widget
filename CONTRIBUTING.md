@@ -40,3 +40,13 @@ Done
 ---
 
 The catalog and provisioner should remain internal implementation details of that Storefront Integration rather than separate components that the core must know about.
+
+### MCP provisioner pattern
+
+Storefront Integrations use one public provisioning entrypoint:
+
+```php
+$mcpApp = $provisioner->provision($catalog);
+```
+
+Concrete provisioners extend the shared Template Method base. The base coordinates capability preparation and MCP app construction, while each concrete provisioner supplies Storefront-specific capabilities and app construction details.

@@ -120,9 +120,17 @@ if (!function_exists('wp_remote_retrieve_body')) {
 require_once __DIR__ . '/../includes/Contracts/interface-chat-loop.php';
 require_once __DIR__ . '/../includes/Contracts/interface-message-store.php';
 require_once __DIR__ . '/../includes/Contracts/interface-mcp-app.php';
+require_once __DIR__ . '/../includes/Contracts/interface-mcp-provisioner.php';
 require_once __DIR__ . '/../includes/Contracts/interface-openai-client.php';
 require_once __DIR__ . '/../includes/Contracts/interface-product-catalog.php';
+require_once __DIR__ . '/../includes/Contracts/interface-storefront-integration.php';
+require_once __DIR__ . '/../includes/Contracts/interface-storefront-integration-factory.php';
+require_once __DIR__ . '/../includes/Contracts/ValueObjects/class-mcp-tool-definition.php';
+require_once __DIR__ . '/../includes/Contracts/ValueObjects/class-mcp-resource-definition.php';
+require_once __DIR__ . '/../includes/Contracts/ValueObjects/class-mcp-provisioning-result.php';
 require_once __DIR__ . '/../includes/Content/class-product-post-type.php';
+require_once __DIR__ . '/../includes/Services/Abstract_Mcp_Provisioner.php';
 require_once __DIR__ . '/../includes/Services/class-chat-loop.php';
+require_once __DIR__ . '/../includes/Services/class-storefront-integration-factory.php';
 require_once __DIR__ . '/../includes/Services/class-llm-service.php';
 require_once __DIR__ . '/../includes/Services/class-wordpress-message-store.php';
