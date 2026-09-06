@@ -17,4 +17,7 @@ define('AICW_URL', plugin_dir_url(__FILE__));
 
 require_once AICW_PATH . 'includes/class-plugin.php';
 
-AICW\Plugin::init();
+AICW\Plugin::register_activation_hooks();
+// Defer init until all plugins have loaded so integrations like WooCommerce are detectable
+// regardless of alphabetical plugin load order.
+add_action('plugins_loaded', ['AICW\\Plugin', 'init']);

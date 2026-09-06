@@ -19,6 +19,8 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  # Serves plausible End-to-End WordPress environment for development and testing.
+  # supports dynamically "selecting" `WP Target Sites` to allow diverse testing
   wordpress:
     image: wordpress:php8.2-apache
     container_name: aicw-wp
@@ -35,6 +37,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL}
       OPENAI_MODEL: ${OPENAI_MODEL}
+      AICW_STOREFRONT_INTEGRATION: ${AICW_STOREFRONT_INTEGRATION:-demo-wp}
     volumes:
       # Shared WordPress install volume used by runtime and bootstrap containers.
       - wp_app:/var/www/html
@@ -56,6 +59,8 @@ services:
   wp-init:
     image: wordpress:cli
     container_name: aicw-wp-init
+    # Alpine's www-data is uid 82; pin to 33 to match the Debian-based wordpress:php8.2-apache image sharing wp_app.
+    user: "33:33"
     depends_on:
       - db
       - wordpress
@@ -70,6 +75,7 @@ services:
       WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
       WP_FIXTURE: ${WP_FIXTURE:-toy-5-products}
+      AICW_STOREFRONT_INTEGRATION: ${AICW_STOREFRONT_INTEGRATION:-demo-wp}
     volumes:
       # Mount the same WordPress install so bootstrap mutates the exact runtime site state.
       - wp_app:/var/www/html

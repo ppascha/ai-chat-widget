@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Purpose: Provide MCP tools and resources for the Demo WP Storefront Integration.
+ * Purpose: Provide MCP tools and resources shared by any product-catalog-backed Storefront Integration.
  * Highlights:
- * - Owns the demo product tool schemas previously embedded in the generic MCP app.
- * - Maps demo catalog products to iframe-addressable resource definitions.
+ * - Owns the product tool schemas previously embedded in the generic MCP app.
+ * - Maps catalog products to iframe-addressable resource definitions.
+ * - Depends only on Product_Catalog_Interface, so it is reused as-is by Demo WP and WooCommerce.
  */
 
 namespace AICW\Services\Integrations;
@@ -15,7 +16,7 @@ use AICW\Contracts\ValueObjects\Mcp_Provisioning_Result;
 use AICW\Contracts\ValueObjects\Mcp_Resource_Definition;
 use AICW\Contracts\ValueObjects\Mcp_Tool_Definition;
 
-class Demo_WP_Mcp_Capability_Provider implements Mcp_Capability_Provider_Interface
+class Catalog_Mcp_Capability_Provider implements Mcp_Capability_Provider_Interface
 {
     public function provide(Product_Catalog_Interface $catalog): Mcp_Provisioning_Result
     {

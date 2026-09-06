@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Purpose: Execute product tools for the Demo WP Storefront Integration.
+ * Purpose: Execute product tools shared by any product-catalog-backed Storefront Integration.
  * Highlights:
- * - Owns demo product filtering and iframe-resource lookup behavior.
+ * - Owns product filtering and iframe-resource lookup behavior.
  * - Keeps Storefront-specific tool dispatch outside the generic MCP app.
+ * - Depends only on Product_Catalog_Interface, so it is reused as-is by Demo WP and WooCommerce.
  */
 
 namespace AICW\Services\Integrations;
@@ -12,7 +13,7 @@ namespace AICW\Services\Integrations;
 use AICW\Contracts\Mcp_Tool_Executor_Interface;
 use AICW\Contracts\Product_Catalog_Interface;
 
-class Demo_WP_Mcp_Tool_Executor implements Mcp_Tool_Executor_Interface
+class Catalog_Mcp_Tool_Executor implements Mcp_Tool_Executor_Interface
 {
     public function __construct(
         private readonly Product_Catalog_Interface $catalog,

@@ -44,14 +44,16 @@ require_once AICW_PATH . 'includes/Controllers/class-chat-controller.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app-factory.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-provisioner.php';
-require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-mcp-capability-provider.php';
-require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-mcp-tool-executor.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-catalog-mcp-capability-provider.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-catalog-mcp-tool-executor.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-message-store.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-product-catalog.php';
 require_once AICW_PATH . 'includes/Services/class-chat-loop.php';
 require_once AICW_PATH . 'includes/Services/class-llm-service.php';
 require_once AICW_PATH . 'includes/Services/class-storefront-integration-factory.php';
 require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-storefront-integration.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-woocommerce-product-catalog.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-woocommerce-storefront-integration.php';
 
 
 use AICW\API\Rest_API;
@@ -66,6 +68,7 @@ use AICW\Content\Product_Post_Type;
 use AICW\Services\LLM_Service;
 use AICW\Services\Chat_Loop;
 use AICW\Services\Integrations\Demo_WP_Storefront_Integration;
+use AICW\Services\Integrations\WooCommerce_Storefront_Integration;
 use AICW\Services\Storefront_Integration_Factory;
 use AICW\Services\WordPress_Message_Store;
 
@@ -107,7 +110,7 @@ class Plugin
         // Extensions can add Storefront Integrations without changing this deployment composition root.
         $storefrontIntegrations = apply_filters(
             'aicw_storefront_integrations',
-            [new Demo_WP_Storefront_Integration()]
+            [new Demo_WP_Storefront_Integration(), new WooCommerce_Storefront_Integration()]
         );
 
         foreach ($storefrontIntegrations as $storefrontIntegration) {
@@ -146,6 +149,10 @@ class Plugin
     private static function resolveStorefrontIntegrationKey(?string $storefrontIntegrationKey): string
     {
         $configuredKey = $storefrontIntegrationKey;
+
+        if (null === $configuredKey && getenv('AICW_STOREFRONT_INTEGRATION')) {
+            $configuredKey = (string) getenv('AICW_STOREFRONT_INTEGRATION');
+        }
 
         if (null === $configuredKey && defined('AICW_STOREFRONT_INTEGRATION')) {
             $configuredKey = (string) AICW_STOREFRONT_INTEGRATION;
