@@ -30,14 +30,17 @@ final class WordPressMessageStoreTest extends TestCase
             ['role' => 'assistant', 'content' => 'hi'],
         ];
 
-        // When: messages are saved, reloaded, and then cleared.
+        // When: messages are saved and reloaded, then the conversation is cleared.
         $store->save($conversationId, $messages);
         $loaded = $store->load($conversationId);
+
+        // Then: the saved transient exists before the clear operation.
+        self::assertArrayHasKey('aicw_chat_history_conversation-123', $GLOBALS['aicw_test_transients']);
+
         $store->clear($conversationId);
 
-        // Then: the transcript round-trips and the underlying transient entry disappears.
+        // Then: the transcript round-trips and the underlying transient entry disappears after clear.
         self::assertSame($messages, $loaded);
-        self::assertArrayHasKey('aicw_chat_history_conversation-123', $GLOBALS['aicw_test_transients']);
         self::assertArrayNotHasKey('aicw_chat_history_conversation-123', $GLOBALS['aicw_test_transients']);
         self::assertSame([], $store->load($conversationId));
     }

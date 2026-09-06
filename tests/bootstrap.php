@@ -143,3 +143,4 @@ require_once __DIR__ . '/../includes/Services/class-llm-service.php';
 require_once __DIR__ . '/../includes/Services/class-wordpress-message-store.php';
 require_once __DIR__ . '/../includes/Services/class-wordpress-mcp-app-factory.php';
 require_once __DIR__ . '/../includes/Services/class-wordpress-mcp-provisioner.php';
+require_once __DIR__ . '/Support/Fakes.php';
