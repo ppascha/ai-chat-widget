@@ -1,23 +1,26 @@
 <?php
 
 /**
- * Purpose: Verify the shared MCP provisioner Template Method.
+ * Purpose: Verify composed MCP provisioner collaborators.
  * Highlights:
- * - Confirms concrete provisioners provide capabilities before app construction.
+ * - Confirms capability provision happens before MCP app construction.
  * - Confirms the public provision entrypoint remains one catalog argument.
  */
 
 namespace AICW\Tests\Unit;
 
+use AICW\Contracts\Mcp_App_Factory_Interface;
 use AICW\Contracts\Mcp_App_Interface;
+use AICW\Contracts\Mcp_Capability_Provider_Interface;
+use AICW\Contracts\Mcp_Tool_Executor_Interface;
 use AICW\Contracts\Product_Catalog_Interface;
 use AICW\Contracts\ValueObjects\Mcp_Provisioning_Result;
-use AICW\Services\Abstract_Mcp_Provisioner;
+use AICW\Services\WordPress_Mcp_Provisioner;
 use PHPUnit\Framework\TestCase;
 
 final class McpProvisionerTest extends TestCase
 {
-    public function testTemplateMethodBuildsAnAppFromProvisionedCapabilities(): void
+    public function testProvisionerComposesCapabilityProviderAndAppFactory(): void
     {
         $catalog = new class implements Product_Catalog_Interface {
             public function all(): array
@@ -36,49 +39,75 @@ final class McpProvisionerTest extends TestCase
             }
         };
 
-        $provisioner = new class extends Abstract_Mcp_Provisioner {
+        $state = new class {
             public array $steps = [];
-
-            protected function provisionCapabilities(Product_Catalog_Interface $catalog): Mcp_Provisioning_Result
+        };
+        $result = new Mcp_Provisioning_Result();
+        $app = new class implements Mcp_App_Interface {
+            public function tools(): array
             {
-                $this->steps[] = 'capabilities';
-
-                return new Mcp_Provisioning_Result();
+                return [];
             }
 
-            protected function buildMcpApp(
-                Product_Catalog_Interface $catalog,
-                Mcp_Provisioning_Result $provisioningResult
-            ): Mcp_App_Interface {
-                $this->steps[] = 'app';
+            public function executeTool(string $toolName, array $arguments): array
+            {
+                return [];
+            }
 
-                return new class implements Mcp_App_Interface {
-                    public function tools(): array
-                    {
-                        return [];
-                    }
+            public function resources(): array
+            {
+                return [];
+            }
 
-                    public function executeTool(string $toolName, array $arguments): array
-                    {
-                        return [];
-                    }
-
-                    public function resources(): array
-                    {
-                        return [];
-                    }
-
-                    public function productIframeUrl(string $slug): string
-                    {
-                        return '';
-                    }
-                };
+            public function productIframeUrl(string $slug): string
+            {
+                return '';
             }
         };
 
-        $app = $provisioner->provision($catalog);
+        $capabilityProvider = new class($state, $result) implements Mcp_Capability_Provider_Interface {
+            public function __construct(
+                private readonly object $state,
+                private readonly Mcp_Provisioning_Result $result,
+            ) {
+            }
 
-        self::assertInstanceOf(Mcp_App_Interface::class, $app);
-        self::assertSame(['capabilities', 'app'], $provisioner->steps);
+            public function provide(Product_Catalog_Interface $catalog): Mcp_Provisioning_Result
+            {
+                $this->state->steps[] = 'capabilities';
+
+                return $this->result;
+            }
+        };
+
+        $appFactory = new class($state, $app) implements Mcp_App_Factory_Interface {
+            public function __construct(
+                private readonly object $state,
+                private readonly Mcp_App_Interface $app,
+            ) {
+            }
+
+            public function create(
+                Product_Catalog_Interface $catalog,
+                Mcp_Provisioning_Result $provisioningResult,
+                Mcp_Tool_Executor_Interface $toolExecutor
+            ): Mcp_App_Interface {
+                $this->state->steps[] = 'app';
+
+                return $this->app;
+            }
+        };
+
+        $toolExecutor = new class implements Mcp_Tool_Executor_Interface {
+            public function execute(string $toolName, array $arguments): array
+            {
+                return [];
+            }
+        };
+
+        $provisioner = new WordPress_Mcp_Provisioner($capabilityProvider, $appFactory, $toolExecutor);
+
+        self::assertSame($app, $provisioner->provision($catalog));
+        self::assertSame(['capabilities', 'app'], $state->steps);
     }
 }

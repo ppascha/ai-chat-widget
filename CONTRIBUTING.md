@@ -49,4 +49,4 @@ Storefront Integrations use one public provisioning entrypoint:
 $mcpApp = $provisioner->provision($catalog);
 ```
 
-Concrete provisioners extend the shared Template Method base. The base coordinates capability preparation and MCP app construction, while each concrete provisioner supplies Storefront-specific capabilities and app construction details.
+Concrete provisioners compose a capability provider and an MCP app factory. The provisioner coordinates capability preparation and MCP app construction, while each composed collaborator supplies Storefront-specific behavior.

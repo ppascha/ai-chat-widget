@@ -3,27 +3,33 @@
 /**
  * Purpose: Provision the current in-process MCP app for the demo WordPress Storefront Integration.
  * Highlights:
- * - Keeps MCP app construction behind the provisioner contract.
+ * - Composes capability provision and MCP app construction behind one entrypoint.
  * - Preserves the existing catalog-to-MCP wiring for the demo WordPress deployment.
  */
 
 namespace AICW\Services;
 
+use AICW\Contracts\Mcp_App_Factory_Interface;
+use AICW\Contracts\Mcp_App_Interface;
+use AICW\Contracts\Mcp_Capability_Provider_Interface;
+use AICW\Contracts\Mcp_Provisioner_Interface;
 use AICW\Contracts\Product_Catalog_Interface;
-use AICW\Contracts\ValueObjects\Mcp_Provisioning_Result;
+use AICW\Contracts\Mcp_Tool_Executor_Interface;
 
-class WordPress_Mcp_Provisioner extends Abstract_Mcp_Provisioner
+class WordPress_Mcp_Provisioner implements Mcp_Provisioner_Interface
 {
-    protected function provisionCapabilities(Product_Catalog_Interface $catalog): Mcp_Provisioning_Result
-    {
-        // The demo app retains its existing inline tool/resource compatibility behavior during this migration.
-        return new Mcp_Provisioning_Result();
+    public function __construct(
+        private readonly Mcp_Capability_Provider_Interface $capabilityProvider,
+        private readonly Mcp_App_Factory_Interface $appFactory,
+        private readonly Mcp_Tool_Executor_Interface $toolExecutor,
+    ) {
     }
 
-    protected function buildMcpApp(
-        Product_Catalog_Interface $catalog,
-        Mcp_Provisioning_Result $provisioningResult
-    ): \AICW\Contracts\Mcp_App_Interface {
-        return new WordPress_Mcp_App($catalog);
+    public function provision(Product_Catalog_Interface $catalog): Mcp_App_Interface
+    {
+        // Compose capability preparation with app construction instead of inheriting a provisioning algorithm.
+        $provisioningResult = $this->capabilityProvider->provide($catalog);
+
+        return $this->appFactory->create($catalog, $provisioningResult, $this->toolExecutor);
     }
 }

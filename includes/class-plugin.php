@@ -24,6 +24,7 @@ require_once AICW_PATH . 'includes/Contracts/interface-openai-client.php';
 require_once AICW_PATH . 'includes/Contracts/interface-message-store.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-app.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-provisioner.php';
+require_once AICW_PATH . 'includes/Contracts/interface-mcp-tool-executor.php';
 require_once AICW_PATH . 'includes/Contracts/interface-product-catalog.php';
 require_once AICW_PATH . 'includes/Contracts/interface-storefront-integration.php';
 require_once AICW_PATH . 'includes/Contracts/interface-storefront-integration-factory.php';
@@ -35,8 +36,10 @@ require_once AICW_PATH . 'includes/Controllers/class-product-iframe-controller.p
 require_once AICW_PATH . 'includes/Controllers/class-chat-controller.php';
 
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app.php';
-require_once AICW_PATH . 'includes/Services/Abstract_Mcp_Provisioner.php';
+require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app-factory.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-provisioner.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-mcp-capability-provider.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-mcp-tool-executor.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-message-store.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-product-catalog.php';
 require_once AICW_PATH . 'includes/Services/class-chat-loop.php';

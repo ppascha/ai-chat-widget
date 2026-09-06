@@ -12,6 +12,9 @@ namespace AICW\Services\Integrations;
 use AICW\Contracts\Mcp_App_Interface;
 use AICW\Contracts\Product_Catalog_Interface;
 use AICW\Contracts\Storefront_Integration_Interface;
+use AICW\Services\Integrations\Demo_WP_Mcp_Capability_Provider;
+use AICW\Services\Integrations\Demo_WP_Mcp_Tool_Executor;
+use AICW\Services\WordPress_Mcp_App_Factory;
 use AICW\Services\WordPress_Mcp_Provisioner;
 use AICW\Services\WordPress_Product_Catalog;
 
@@ -24,7 +27,11 @@ class Demo_WP_Storefront_Integration implements Storefront_Integration_Interface
     public function __construct()
     {
         $this->catalog = new WordPress_Product_Catalog();
-        $this->mcpApp = (new WordPress_Mcp_Provisioner())->provision($this->catalog);
+        $this->mcpApp = (new WordPress_Mcp_Provisioner(
+            new Demo_WP_Mcp_Capability_Provider(),
+            new WordPress_Mcp_App_Factory(),
+            new Demo_WP_Mcp_Tool_Executor($this->catalog),
+        ))->provision($this->catalog);
     }
 
     public function key(): string
