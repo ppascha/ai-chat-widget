@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Purpose: Plugin composition root that wires contracts to concrete WordPress services.
+ * Purpose: WordPress deployment composition root that wires the selected Storefront Integration to plugin services.
  * Highlights:
  * - Registers activation/init hooks and bootstrap order.
- * - Builds chat loop, MCP app, catalog, and REST controllers in one place.
+ * - Builds chat loop, MCP app, catalog, and REST controllers for the WordPress deployment runtime.
  */
 
 namespace AICW;
@@ -23,7 +23,10 @@ require_once AICW_PATH . 'includes/Contracts/interface-chat-loop.php';
 require_once AICW_PATH . 'includes/Contracts/interface-openai-client.php';
 require_once AICW_PATH . 'includes/Contracts/interface-message-store.php';
 require_once AICW_PATH . 'includes/Contracts/interface-mcp-app.php';
+require_once AICW_PATH . 'includes/Contracts/interface-mcp-provisioner.php';
 require_once AICW_PATH . 'includes/Contracts/interface-product-catalog.php';
+require_once AICW_PATH . 'includes/Contracts/interface-storefront-integration.php';
+require_once AICW_PATH . 'includes/Contracts/interface-storefront-integration-factory.php';
 
 require_once AICW_PATH . 'includes/API/class-rest-api.php';
 
@@ -32,10 +35,13 @@ require_once AICW_PATH . 'includes/Controllers/class-product-iframe-controller.p
 require_once AICW_PATH . 'includes/Controllers/class-chat-controller.php';
 
 require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-app.php';
+require_once AICW_PATH . 'includes/Services/class-wordpress-mcp-provisioner.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-message-store.php';
 require_once AICW_PATH . 'includes/Services/class-wordpress-product-catalog.php';
 require_once AICW_PATH . 'includes/Services/class-chat-loop.php';
 require_once AICW_PATH . 'includes/Services/class-llm-service.php';
+require_once AICW_PATH . 'includes/Services/class-storefront-integration-factory.php';
+require_once AICW_PATH . 'includes/Services/Integrations/class-demo-wp-storefront-integration.php';
 
 
 use AICW\API\Rest_API;
@@ -49,9 +55,9 @@ use AICW\Contracts\Product_Catalog_Interface;
 use AICW\Content\Product_Post_Type;
 use AICW\Services\LLM_Service;
 use AICW\Services\Chat_Loop;
-use AICW\Services\WordPress_Mcp_App;
+use AICW\Services\Integrations\Demo_WP_Storefront_Integration;
+use AICW\Services\Storefront_Integration_Factory;
 use AICW\Services\WordPress_Message_Store;
-use AICW\Services\WordPress_Product_Catalog;
 
 
 class Plugin
@@ -80,17 +86,31 @@ class Plugin
         flush_rewrite_rules();
     }
 
-    public static function init()
+    public static function init(?string $storefrontIntegrationKey = null)
     {
         // Register the product content type on every request so the site owns the product records.
         Product_Post_Type::register();
 
+        $storefrontIntegrationKey = self::resolveStorefrontIntegrationKey($storefrontIntegrationKey);
+        $integrationFactory = new Storefront_Integration_Factory();
+
+        // Extensions can add Storefront Integrations without changing this deployment composition root.
+        $storefrontIntegrations = apply_filters(
+            'aicw_storefront_integrations',
+            [new Demo_WP_Storefront_Integration()]
+        );
+
+        foreach ($storefrontIntegrations as $storefrontIntegration) {
+            $integrationFactory->register($storefrontIntegration);
+        }
+
+        $storefrontIntegration = $integrationFactory->create($storefrontIntegrationKey);
+
         // Message store is a swap point: transients now, DB/remote store later.
         self::$messageStore = new WordPress_Message_Store();
-        // Catalog is site-owned content adapter (today custom posts, later WooCommerce APIs if needed).
-        self::$catalog = new WordPress_Product_Catalog();
-        // MCP app is the capability boundary that declares and executes tools/resources.
-        self::$mcpApp = new WordPress_Mcp_App(self::$catalog);
+        // The selected Storefront Integration owns its catalog and MCP capability construction.
+        self::$catalog = $storefrontIntegration->productCatalog();
+        self::$mcpApp = $storefrontIntegration->mcpApp();
         // Chat loop owns message state and tool recursion for each conversation turn.
         self::$chatLoop = new Chat_Loop(
             self::$messageStore,
@@ -110,6 +130,21 @@ class Plugin
             self::$chatLoop,
             self::$catalog,
             self::$mcpApp
+        );
+    }
+
+    private static function resolveStorefrontIntegrationKey(?string $storefrontIntegrationKey): string
+    {
+        $configuredKey = $storefrontIntegrationKey;
+
+        if (null === $configuredKey && defined('AICW_STOREFRONT_INTEGRATION')) {
+            $configuredKey = (string) AICW_STOREFRONT_INTEGRATION;
+        }
+
+        // Filter/constant configuration keeps Storefront Integration choice outside service classes.
+        return (string) apply_filters(
+            'aicw_storefront_integration_key',
+            '' !== trim((string) $configuredKey) ? trim((string) $configuredKey) : 'demo-wp'
         );
     }
 

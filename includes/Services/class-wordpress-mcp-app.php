@@ -167,7 +167,7 @@ class WordPress_Mcp_App implements Mcp_App_Interface
             $products = $this->catalog->all();
         }
 
-        // Search is applied after category narrowing to emulate layered storefront filtering.
+        // Search is applied after category narrowing to emulate layered Storefront filtering.
         if ('' !== $search) {
             $products = array_values(array_filter(
                 $products,

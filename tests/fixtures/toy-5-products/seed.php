@@ -41,7 +41,7 @@ $products = [
     ],
 ];
 
-// Ensure plugin hooks run so custom post types and related integrations are registered.
+// Ensure plugin hooks run so custom post types and related Storefront Integrations are registered.
 do_action('init');
 
 foreach ($products as $product) {

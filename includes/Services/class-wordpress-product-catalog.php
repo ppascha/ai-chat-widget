@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Purpose: WordPress-backed product catalog adapter used by chat and storefront integrations.
+ * Purpose: WordPress-backed product catalog adapter used by chat and Storefront Integrations.
  * Highlights:
  * - Reads site-owned product posts and normalizes them into transport-safe arrays.
  * - Exposes canonical product URLs so chat cards and iframe previews can deep-link to real product pages.
@@ -86,7 +86,7 @@ class WordPress_Product_Catalog implements Product_Catalog_Interface
             'title' => get_the_title($post),
             'category' => $category,
             'summary' => wp_strip_all_tags((string) get_the_excerpt($post)),
-            // Canonical storefront URL keeps chat links aligned with the main site product pages.
+            // Canonical Storefront URL keeps chat links aligned with the main site product pages.
             'productUrl' => is_string($permalink) ? $permalink : '',
         ];
     }
