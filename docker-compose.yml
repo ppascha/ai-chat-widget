@@ -1,5 +1,8 @@
 version: "3.8"
 
+# Quick Demo: docker-compose --env-file .env up -d
+
+
 services:
   db:
     image: mysql:8.0
@@ -76,6 +79,7 @@ services:
     # Normalize CRLF line endings at runtime so Windows checkouts still boot cleanly.
     entrypoint: ["/bin/sh", "-c", "tr -d '\\r' < /bootstrap-site.sh | /bin/sh"]
     restart: "no"
+
 
 volumes:
   db_data:
