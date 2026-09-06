@@ -5,9 +5,8 @@ docker build -f Dockerfile.tests -t ai-widget-wp-plugin-unit-tests .
 mkdir -p build/coverage
 docker run --rm \
 	-v "$(pwd)/build:/app/build" \
-	--entrypoint php \
+	--entrypoint /app/vendor/bin/phpunit \
 	ai-widget-wp-plugin-unit-tests \
-	vendor/bin/phpunit \
 	--configuration phpunit.xml.dist \
 	--testdox \
 	--coverage-text \
