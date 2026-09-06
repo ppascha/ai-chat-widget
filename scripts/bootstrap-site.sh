@@ -61,6 +61,11 @@ if ! wp core is-installed --allow-root >/dev/null 2>&1; then
     --allow-root
 fi
 
+if [ "$FIXTURE_NAME" = "woo-test-site-1" ]; then
+  echo "[wp-init] Ensuring WooCommerce is active before loading the AI plugin..."
+  wp plugin install woocommerce --activate --allow-root
+fi
+
 echo "[wp-init] Ensuring plugin is active..."
 wp plugin activate ai-chat-widget --allow-root >/dev/null 2>&1 || true
 
