@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=${MYSQL_AUTH_PLUGIN:-mysql_native_password}
+    container_name: aicw-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    container_name: aicw-wp
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "${WP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      OPENAI_MODEL: ${OPENAI_MODEL}
+    volumes:
+      # Shared WordPress install volume used by runtime and bootstrap containers.
+      - wp_app:/var/www/html
+      # Mount live plugin source to emulate plugin files present on disk during development.
+      - ./:/var/www/html/wp-content/plugins/ai-chat-widget
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: aicw-pma
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  wp-init:
+    image: wordpress:cli
+    container_name: aicw-wp-init
+    depends_on:
+      - db
+      - wordpress
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WP_SITE_URL: ${WP_SITE_URL}
+      WP_SITE_TITLE: ${WP_SITE_TITLE}
+      WP_ADMIN_USER: ${WP_ADMIN_USER}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_FIXTURE: ${WP_FIXTURE:-toy-5-products}
+    volumes:
+      # Mount the same WordPress install so bootstrap mutates the exact runtime site state.
+      - wp_app:/var/www/html
+      # Mount live plugin source so bootstrap can activate the plugin and load fixture scripts.
+      - ./:/var/www/html/wp-content/plugins/ai-chat-widget
+      - ./scripts/bootstrap-site.sh:/bootstrap-site.sh:ro
+    entrypoint: ["/bin/sh", "/bootstrap-site.sh"]
+    restart: "no"
+
+volumes:
+  db_data:
+  wp_app:
