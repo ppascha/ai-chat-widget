@@ -4,10 +4,22 @@ The **AI Chat Widjet** is a `Wordpress plguin` kind of project.
 
 ## Local development
 
-1. Copy `.env.example` to `.env` 
+### Demo 1: Toy 5-product WP Storefront (default)
+
+1. Copy `.env.example` to `.env`
 2. Run `docker-compose --env-file .env up -d`
 
 Visit [`http:localhost:8080`](`http://localhost:8080)
+
+### Demo 2: WooTestSite1 (WooCommerce Storefront)
+
+Boots the same stack against a WooCommerce-backed fixture so the WooCommerce Storefront Integration can be demoed end-to-end.
+
+1. Copy `.env.example` to `.env`
+2. Run `WP_FIXTURE=woo-test-site-1 AICW_STOREFRONT_INTEGRATION=woocommerce docker-compose --env-file .env up -d`
+3. Wait for the `wp-init` container to finish (`docker-compose logs -f wp-init`), then visit [`http:localhost:8080`](`http://localhost:8080)
+
+To switch back to Demo 1, run `docker-compose --env-file .env down -v` before starting again without the `WP_FIXTURE`/`AICW_STOREFRONT_INTEGRATION` overrides (volumes must be reset because the fixture and integration are selected at bootstrap time).
 
 ---
 

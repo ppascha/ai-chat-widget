@@ -134,6 +134,8 @@ flowchart TB
 
 Practical note: the current WordPress-hosted MCP app can stay in-process for the spike. If the MCP app becomes a dedicated server later, adopt the PHP MCP SDK at that boundary so the tool/resource contract stays stable and only the transport moves.
 
+The Storefront Integration boundary is the local extraction seam: Demo WP and WooCommerce provide their own catalogs, MCP capability definitions, and tool executors, while the chat loop, REST contracts, and MCP app facade remain shared. The active Storefront Integration is selected by the deployment environment, so the WooTestSite1 fixture can be provisioned independently of the AI Chat plugin.
+
 
 This is a tried architecture deployed for different past project, for an ai-chat interface with ability to render iframes inline the chat.
 
